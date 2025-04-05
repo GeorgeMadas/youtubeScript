@@ -12,10 +12,37 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+// Check if Firebase is actually configured or just has placeholder values
+const isFirebaseConfigured = 
+  process.env.NEXT_PUBLIC_FIREBASE_API_KEY !== "placeholder" && 
+  process.env.NEXT_PUBLIC_FIREBASE_API_KEY !== undefined;
+
+// Initialize Firebase if it's properly configured
+let app;
+let auth;
+let db;
+let storage;
+
+if (isFirebaseConfigured) {
+  try {
+    app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+    storage = getStorage(app);
+  } catch (error) {
+    console.error("Firebase initialization error:", error);
+    // Provide stub/mock values for Firebase services
+    app = null;
+    auth = null;
+    db = null;
+    storage = null;
+  }
+} else {
+  // Provide stub/mock values for Firebase services
+  app = null;
+  auth = null;
+  db = null;
+  storage = null;
+}
 
 export { app, auth, db, storage };
